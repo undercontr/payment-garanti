@@ -1,0 +1,155 @@
+{% extends "_layout.html" %}
+
+{% block body %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12 my-3">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h3>{{ inv.invoice_no }}</h3></div>
+                    <div>
+                        <a class="btn btn-primary font-weight-bold" href="{{ url_for("list_payments") }}">Invoice
+                            List</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="table-responsive">
+                    <!--Table-->
+                    <table id="tablePreview" class="table table-bordered table-striped table-sm">
+                        <!--Table head-->
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Invoice No</th>
+                            <th>Company Title</th>
+                            <th>Email</th>
+                            <th>Price</th>
+                            <th>Payment Type</th>
+                            <th>Invoice Amount</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <!--Table head-->
+                        <!--Table body-->
+                        <tbody>
+                        <tr>
+                            <th scope="row">{{ inv.invoice_id }}</th>
+                            <td>{{ inv.invoice_no }}</td>
+                            <td>{{ inv.company_title }}</td>
+                            <td>{{ inv.email }}</td>
+                            <td>{{ inv.price_info }}</td>
+                            <td>{{ inv.payment_type }}</td>
+                            <td>{{ inv.get_amount(inv.amount, inv.currency) }}</td>
+                            <td><span
+                                    class="{% if inv.status == "PAID" %}text-success font-weight-bold{% elif inv.status == "NOT PAID" %}text-danger font-weight-bold{% endif %}">{{ inv.status }}</span><i
+                                    class="{% if inv.status == "PAID" %}text-success fa fa-check-circle{% elif inv.status == "NOT PAID" %}text-danger fa fa-times-circle{% endif %}"></i>
+                            </td>
+                            <td>{% if inv.status == "PAID" %}{% else %}<a class="btn btn-success btn-sm"
+                                                                          href="{{ url_for("edit_payment", url=inv.url) }}">Edit</a>{% endif %}
+                                <button data-pay-url="{{ request.host_url[:-1] + url_for("payment_index", url=inv.url) }}"
+                                        class="url-copy-btn btn btn-info btn-sm">URL
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                        <!--Table body-->
+                    </table>
+                    <!--Table-->
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 my-3">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h3>PAYMENT ACTIVITY</h3></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                {% if data|length == 0 %}
+                    <p>No payment entry for this invoice</p>
+                {% else %}
+                    <div class="table-responsive">
+                    <!--Table-->
+                    <table id="tablePreview" class="table table-bordered table-striped table-sm">
+                    <!--Table head-->
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Paid Invoice</th>
+                        <th>Order ID</th>
+                        <th>Auth Code</th>
+                        <th>Prov Date</th>
+                        <th>Paid Amount</th>
+                        <th>Error Message</th>
+                        <th>SYS Error Message</th>
+                        <th>Return Message</th>
+                        <th>Card Number (Masked)</th>
+                        <th>Cardholder Name</th>
+                        <th>Card Type</th>
+                    </tr>
+                    </thead>
+                    <!--Table head-->
+                    <!--Table body-->
+                    <tbody>
+
+                    {% for pay in data %}
+
+                        <tr>
+                            <th scope="row">{{ pay.payment_id }}</th>
+                            <td>{{ pay.invoice.invoice_no }}</td>
+                            <td>{{ pay.order_id }}</td>
+                            <td>{{ pay.auth_code }}</td>
+                            <td>{{ pay.provision_date }}</td>
+                            <td>{{ pay.invoice_amount }}</td>
+                            <td>{{ pay.err_msg }}</td>
+                            <td>{{ pay.sys_err_msg }}</td>
+                            <td>{{ pay.status }}</td>
+                            <td>{{ pay.card_number_masked }}</td>
+                            <td>{{ pay.card_type }}</td>
+                            <td>{{ pay.url }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <!--Table body-->
+                </table>
+                <!--Table-->
+                </div>
+            {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block extra_scr %}
+    <script>
+
+        let urlCopyBtn = $(".url-copy-btn");
+
+        urlCopyBtn.on('click', function (e) {
+            e.preventDefault();
+
+            var copyText = $(this).attr('data-pay-url');
+
+            var textarea = document.createElement("textarea");
+            textarea.textContent = copyText;
+            textarea.style.position = "fixed"; // Prevent scrolling to bottom of page in MS Edge.
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+
+            document.body.removeChild(textarea);
+
+            alert("Payment URL copied: " + copyText)
+
+        })
+    </script>
+{% endblock %}

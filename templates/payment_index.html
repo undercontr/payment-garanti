@@ -1,0 +1,141 @@
+{% extends "_layout.html" %}
+{% block body %}
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-xs-12 col-md-10 mx-auto">
+                {% if payment.status and payment.status == "Approved" %}{% else %}
+                    <div class="card-group">{% endif %}
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title" style="display: inline;font-weight: bold">
+                            {{ data.invoice_no }}
+                        </h3> <span
+                            class="font-weight-bold float-right">Status:&nbsp;<span
+                            class="{% if data.status == "PAID" %}text-success font-weight-bold{% elif data.status == "NOT PAID" %}text-danger font-weight-bold{% endif %}">{{ data.status }}</span>&nbsp;<i
+                            class="{% if data.status == "PAID" %}text-success fa fa-check-circle{% elif data.status == "NOT PAID" %}text-danger fa fa-times-circle{% endif %}"></i>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title font-weight-bold">Company Title</h5>
+                        <p class="card-text">{{ data.company_title }}</p>
+                        <hr>
+                        <h6 class="card-title">Billing Address</h6>
+                        <p class="card-text small">{{ data.billing_address }}</p>
+                        <hr>
+                        <h6 class="card-title">Shipping Address</h6>
+                        <p class="card-text small">{{ data.shipping_address }}</p>
+                        <hr>
+                        <div class="row">
+                            <div class="col-6">
+                                <h6 class="card-title">Price</h6>
+                                <p class="card-text small">{{ data.price_info }}</p>
+                            </div>
+                            <div class="col-6">
+                                <h6 class="card-title">Payment Type</h6>
+                                <p class="card-text small">{{ data.payment_type }}</p>
+                            </div>
+                        </div>
+                        <hr>
+
+                        <h5 class="card-title">Total Amount</h5>
+                        <p class="card-title font-weight-bold">{{ amount(data.amount, data.currency) }}</p>
+                        <hr>
+                        <p class="card-text"><span class="text-muted font-weight-bold">Request Date:
+                            {% if payment.provision_date %}{{ payment.provision_date }}{% else %}NOT PAID
+                                YET{% endif %}</span></p>
+                        {% if payment %}
+                            <p class="card-text"><span
+                                    class="{% if payment.status == "Approved" %}text-success{% else %}text-danger{% endif %} font-weight-bold">Bank
+                                Response: {{ payment.status }}</span></p>
+                            {% if not payment.status == "Approved" %}
+                                {% if payment.err_msg %}
+                                    <p class="card-text"><span
+                                            class="text-danger font-weight-bold">Bank Error Message: {{ payment.err_msg }}</span>
+                                    </p>{% endif %}
+                                {% if payment.sys_err_msg %}
+                                    <p class="card-text"><span
+                                            class="text-danger font-weight-bold">Bank System Error Message: {{ payment.sys_err_msg }}</span>
+                                    </p>{% endif %}
+                            {% endif %}
+                        {% else %}{% endif %}
+                    </div>
+                </div>
+                {% if payment.status and payment.status == "Approved" %}
+                {% else %}
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title" style="display: inline;font-weight: bold">
+                                Payment Form
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <form role="form" name="form" id="form" method="POST">
+                                <div class="form-group">
+                                    <label for="name">
+                                        FULL NAME</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" name="name" id="name"
+                                               placeholder="Card Owner Name"
+                                               required autofocus/>
+                                        <div class="input-group-append">
+                                            <span class="input-group-text"><span class="fa fa-user"></span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="number">
+                                        CARD NUMBER</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" name="number" id="number"
+                                               placeholder="Valid Card Number"
+                                               required autofocus/>
+                                        <div class="input-group-append">
+                                            <span class="input-group-text"><span
+                                                    class="fa fa-credit-card"></span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for="expiry">
+                                                EXPIRY DATE</label>
+                                            <div class="">
+                                                <input type="text" class="form-control w-100" name="expiry" id="expiry"
+                                                       placeholder="MM/YY"
+                                                       required/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-6 col-md-6 pull-right">
+                                        <div class="form-group">
+                                            <label for="cvc">
+                                                CVV2 CODE</label>
+                                            <input type="text" class="form-control" name="cvc" id="cvc"
+                                                   placeholder="CVV Code"
+                                                   required/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-wrapper"></div>
+                                <br/>
+                                <input type="submit" id="submit" name="submit"
+                                       value="PAY ({{ amount(data.amount, data.currency) }})"
+                                       class="btn btn-success btn-lg btn-block">
+                            </form>
+                        </div>
+                    </div>
+                {% endif %}
+                {% if payment.status and payment.status == "Approved" %}{% else %}</div>{% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block extra_scr %}
+    <script>
+
+        $("form").card({
+            container: ".card-wrapper"
+        })
+
+    </script>
+{% endblock %}
